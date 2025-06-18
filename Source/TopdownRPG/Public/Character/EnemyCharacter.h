@@ -16,6 +16,10 @@ class TOPDOWNRPG_API AEnemyCharacter : public ACharacterBase, public IEnemyInter
 
 public:
 	AEnemyCharacter();
+	
 	virtual void HighlightActor() override;
 	virtual void UnHighlightActor() override;
+
+protected:
+	virtual void BeginPlay() override;
 };
