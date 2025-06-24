@@ -3,8 +3,10 @@
 #include "Character/PlayerCharacter.h"
 
 #include "AbilitySystemComponent.h"
+#include "Controller/TopdownPlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "State/TopdownPlayerState.h"
+#include "UI/HUD/PlayerHUD.h"
 
 
 APlayerCharacter::APlayerCharacter()
@@ -33,9 +35,17 @@ void APlayerCharacter::OnRep_PlayerState()
 
 void APlayerCharacter::InitAbilityActorInfo()
 {
-	ATopdownPlayerState* PlayerState =  GetPlayerState<ATopdownPlayerState>();
-	check(PlayerState);
-	PlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(PlayerState, this);
-	AbilitySystemComponent = PlayerState->GetAbilitySystemComponent();
-	AttributeSet = PlayerState->GetAttributeSet();
+	ATopdownPlayerState* TopdownPlayerState =  GetPlayerState<ATopdownPlayerState>();
+	check(TopdownPlayerState);
+	TopdownPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(TopdownPlayerState, this);
+	AbilitySystemComponent = TopdownPlayerState->GetAbilitySystemComponent();
+	AttributeSet = TopdownPlayerState->GetAttributeSet();
+
+	if (ATopdownPlayerController* TopdownPlayerController = Cast<ATopdownPlayerController>(GetController()))
+	{
+		if (APlayerHUD* PlayerHUD = Cast<APlayerHUD>(TopdownPlayerController->GetHUD()))
+		{
+			PlayerHUD->InitOverlay(TopdownPlayerController, TopdownPlayerState, AbilitySystemComponent, AttributeSet);
+		}
+	}
 }

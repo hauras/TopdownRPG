@@ -6,6 +6,8 @@
 #include "GameFramework/PlayerState.h"
 #include "TopdownPlayerState.generated.h"
 
+class UAbilitySystemComponent;
+class UAttributeSet;
 /**
  * 
  */
@@ -22,7 +24,7 @@ protected:
 	
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
-	
+
 	UPROPERTY()
 	TObjectPtr<UAttributeSet> AttributeSet;
 };
