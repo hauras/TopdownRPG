@@ -3,6 +3,7 @@
 #include "Character/PlayerCharacter.h"
 
 #include "AbilitySystemComponent.h"
+#include "AbilitySystem/TopdownAbilitySystemComponent.h"
 #include "Controller/TopdownPlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "State/TopdownPlayerState.h"
@@ -38,6 +39,7 @@ void APlayerCharacter::InitAbilityActorInfo()
 	ATopdownPlayerState* TopdownPlayerState =  GetPlayerState<ATopdownPlayerState>();
 	check(TopdownPlayerState);
 	TopdownPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(TopdownPlayerState, this);
+	Cast<UTopdownAbilitySystemComponent>(TopdownPlayerState->GetAbilitySystemComponent())->AbilityActorInfoSet();
 	AbilitySystemComponent = TopdownPlayerState->GetAbilitySystemComponent();
 	AttributeSet = TopdownPlayerState->GetAttributeSet();
 

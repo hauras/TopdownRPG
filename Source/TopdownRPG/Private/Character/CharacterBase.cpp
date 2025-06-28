@@ -22,6 +22,12 @@ void ACharacterBase::BeginPlay()
 	
 }
 
+void ACharacterBase::InitAbilityActorInfo()
+{
+}
+
+
+
 
 
 

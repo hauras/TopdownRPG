@@ -1,4 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -9,9 +8,17 @@
 /**
  * 
  */
+DECLARE_MULTICAST_DELEGATE_OneParam(FEffectAssetTags, const FGameplayTagContainer& );
+
 UCLASS()
 class TOPDOWNRPG_API UTopdownAbilitySystemComponent : public UAbilitySystemComponent
 {
 	GENERATED_BODY()
+public:
+	void AbilityActorInfoSet();
+
+	FEffectAssetTags EffectAssetTags;
 	
+protected:
+	void EffectApply(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle);
 };
