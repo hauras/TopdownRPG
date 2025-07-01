@@ -34,6 +34,13 @@ void APlayerCharacter::OnRep_PlayerState()
 	Super::OnRep_PlayerState();
 }
 
+int32 APlayerCharacter::GetPlayerLevel()
+{
+	const ATopdownPlayerState* TopdownPlayerState =  GetPlayerState<ATopdownPlayerState>();
+	check(TopdownPlayerState);
+	return TopdownPlayerState->GetPlayerLevel();
+}
+
 void APlayerCharacter::InitAbilityActorInfo()
 {
 	ATopdownPlayerState* TopdownPlayerState =  GetPlayerState<ATopdownPlayerState>();
@@ -50,4 +57,6 @@ void APlayerCharacter::InitAbilityActorInfo()
 			PlayerHUD->InitOverlay(TopdownPlayerController, TopdownPlayerState, AbilitySystemComponent, AttributeSet);
 		}
 	}
+	InitializeDefaultAttributes();
+	AddCharacterAbilities();
 }

@@ -18,30 +18,36 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 {
 	const UTopdownAttributeSet* TopdownAttributeSet = CastChecked<UTopdownAttributeSet>(AttributeSet);
 
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		TopdownAttributeSet->GetHealthAttribute()).AddUObject(this, &UOverlayWidgetController::HealthChanced);
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(TopdownAttributeSet->GetHealthAttribute()).AddLambda(
+			[this](const FOnAttributeChangeData& Data)
+			{
+				OnHealthChanged.Broadcast(Data.NewValue);
+			}
+		);
 
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		TopdownAttributeSet->GetMaxHealthAttribute()).AddUObject(this, &UOverlayWidgetController::MaxHealthChanced);
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(TopdownAttributeSet->GetMaxHealthAttribute()).AddLambda(
+			[this](const FOnAttributeChangeData& Data)
+			{
+				OnMaxHealthChanged.Broadcast(Data.NewValue);
+			}
+		);
 
+	// 추후 속성값이 추가될때 이 곳에 추가
+	
 	
 	Cast<UTopdownAbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddLambda(
-		[](const FGameplayTagContainer& AssetTags)
+		[this](const FGameplayTagContainer& AssetTags)
 		{
 			for (const FGameplayTag& Tag : AssetTags)
 			{
-				const FString Msg = FString::Printf(TEXT("GE Tag: %s"), *Tag.ToString());
-				GEngine->AddOnScreenDebugMessage(-1, 8.f, FColor::Blue, Msg);
+				
+				FGameplayTag MessageTag = FGameplayTag::RequestGameplayTag(FName("Message"));
+				if (Tag.MatchesTag(MessageTag))
+				{
+					FUIWidgetRow* Row = GetDataTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable, Tag);
+					MessageWidgetRowDelegate.Broadcast(*Row);
+				}
 			}
 		});
 }
 
-void UOverlayWidgetController::HealthChanced(const FOnAttributeChangeData& Data) const
-{
-	OnHealthChanged.Broadcast(Data.NewValue);
-}
-
-void UOverlayWidgetController::MaxHealthChanced(const FOnAttributeChangeData& Data) const 
-{
-	OnMaxHealthChanged.Broadcast(Data.NewValue);
-}

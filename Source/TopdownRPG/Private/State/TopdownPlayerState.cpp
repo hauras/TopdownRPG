@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/TopdownAbilitySystemComponent.h"
 #include "AbilitySystem/TopdownAttributeSet.h"
+#include "Net/UnrealNetwork.h"
 
 ATopdownPlayerState::ATopdownPlayerState()
 {
@@ -15,7 +16,18 @@ ATopdownPlayerState::ATopdownPlayerState()
 	NetUpdateFrequency = 100.f;
 }
 
+void ATopdownPlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ATopdownPlayerState, Level);
+}
+
 UAbilitySystemComponent* ATopdownPlayerState::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
+}
+
+void ATopdownPlayerState::OnRep_Level(int32 OldLevel)
+{
+	
 }
