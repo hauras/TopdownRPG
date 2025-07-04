@@ -19,6 +19,11 @@ UAbilitySystemComponent* ACharacterBase::GetAbilitySystemComponent() const
 }
 
 
+FVector ACharacterBase::GetCombatSocketLocation() 
+{
+	check(Weapon);
+	return Weapon->GetSocketLocation(WeaponSocketName);
+}
 
 void ACharacterBase::BeginPlay()
 {

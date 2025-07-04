@@ -3,8 +3,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "GameplayTagContainer.h"
 #include "TopdownPlayerController.generated.h"
 
+class UTopdownAbilitySystemComponent;
+class UTopdownInputConfig;
 class IEnemyInterface;
 struct FInputActionValue;
 class UInputMappingContext;
@@ -21,6 +24,7 @@ class TOPDOWNRPG_API ATopdownPlayerController : public APlayerController
 public:
 	ATopdownPlayerController();
 	virtual void PlayerTick(float DeltaTime) override;
+
 	
 protected:
 	virtual void BeginPlay() override;
@@ -38,4 +42,17 @@ private:
 	void CursorTrace();
 	TScriptInterface<IEnemyInterface> LastActor;
 	TScriptInterface<IEnemyInterface> ThisActor;
+	FHitResult CursorHit;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	UTopdownInputConfig* InputConfig;
+
+	void AbilityInputTagPressed(FGameplayTag InputTag);
+	void AbilityInputTagReleased(FGameplayTag InputTag);
+	void AbilityInputTagHeld(FGameplayTag InputTag);
+
+	UPROPERTY()
+	TObjectPtr<UTopdownAbilitySystemComponent> TopdownAbilitySystemComponent;
+
+	UTopdownAbilitySystemComponent* GetASC();
 };

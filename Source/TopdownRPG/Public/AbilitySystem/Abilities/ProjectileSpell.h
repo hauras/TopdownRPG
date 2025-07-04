@@ -1,0 +1,23 @@
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "AbilitySystem/Abilities/TopdownGameplayAbility.h"
+#include "ProjectileSpell.generated.h"
+
+class AProjectile;
+/**
+ * 
+ */
+UCLASS()
+class TOPDOWNRPG_API UProjectileSpell : public UTopdownGameplayAbility
+{
+	GENERATED_BODY()
+public:
+
+protected:
+	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<AProjectile> ProjectileClass;
+};

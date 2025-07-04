@@ -1,7 +1,11 @@
 
 #include "Controller/TopdownPlayerController.h"
+
+#include "AbilitySystemBlueprintLibrary.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "AbilitySystem/TopdownAbilitySystemComponent.h"
+#include "Input/TopdownInputComponent.h"
 #include "Interface/EnemyInterface.h"
 
 
@@ -41,9 +45,11 @@ void ATopdownPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
-	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
+	UTopdownInputComponent* TopdownInputComponent = CastChecked<UTopdownInputComponent>(InputComponent);
 
-	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ATopdownPlayerController::Move);
+	TopdownInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ATopdownPlayerController::Move);
+
+	TopdownInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::AbilityInputTagPressed, &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);
 }
 
 void ATopdownPlayerController::Move(const FInputActionValue& InputActionValue)
@@ -64,44 +70,40 @@ void ATopdownPlayerController::Move(const FInputActionValue& InputActionValue)
 
 void ATopdownPlayerController::CursorTrace()
 {
-	FHitResult CursorHit;
 	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);
 	if (!CursorHit.bBlockingHit) return;
 
 	LastActor = ThisActor;
 	ThisActor = CursorHit.GetActor();
 	
-	if (LastActor == nullptr)
+	if (LastActor != ThisActor)
 	{
-		if (ThisActor != nullptr)
-		{
-			// Case B
-			ThisActor->HighlightActor();
-		}
-		else
-		{
-			// Case A - both are null, do nothing
-		}
+		if (LastActor) LastActor->UnHighlightActor();
+		if (ThisActor) ThisActor->HighlightActor();
 	}
-	else // LastActor is valid
+}
+
+void ATopdownPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
+{
+}
+
+void ATopdownPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
+{
+	if (GetASC() == nullptr) return;
+	GetASC()->AbilityInputTagHeld(InputTag);
+}
+
+void ATopdownPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
+{
+	if (GetASC() == nullptr) return;
+	GetASC()->AbilityInputTagHeld(InputTag);
+}
+
+UTopdownAbilitySystemComponent* ATopdownPlayerController::GetASC()
+{
+	if (TopdownAbilitySystemComponent == nullptr)
 	{
-		if (ThisActor == nullptr)
-		{
-			// Case C
-			LastActor->UnHighlightActor();
-		}
-		else // both actors are valid
-		{
-			if (LastActor != ThisActor)
-			{
-				// Case D
-				LastActor->UnHighlightActor();
-				ThisActor->HighlightActor();
-			}
-			else
-			{
-				// Case E - do nothing
-			}
-		}
+		TopdownAbilitySystemComponent = Cast<UTopdownAbilitySystemComponent>(UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn<APawn>()));
 	}
+	return TopdownAbilitySystemComponent;
 }
