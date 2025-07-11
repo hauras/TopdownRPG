@@ -7,6 +7,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Components/AudioComponent.h"
+#include "TopdownRPG/TopdownRPG.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 
 AProjectile::AProjectile()
 {
@@ -16,6 +19,7 @@ AProjectile::AProjectile()
 	Sphere = CreateDefaultSubobject<USphereComponent>("Sphere");
 	SetRootComponent(Sphere);
 
+	Sphere->SetCollisionObjectType(ECC_Projectile);
 	Sphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	Sphere->SetCollisionResponseToAllChannels(ECR_Ignore);
 	Sphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
@@ -59,6 +63,10 @@ void AProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 
 	if (HasAuthority())
 	{
+		if (UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor))
+		{
+			TargetASC->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data.Get());
+		}
 		Destroy();
 	}
 	else

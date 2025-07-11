@@ -4,11 +4,14 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "GameFramework/Character.h"
 #include "GameplayEffectExtension.h"
+#include "TopdownGameplayTags.h"
 #include "Net/UnrealNetwork.h"
 
 UTopdownAttributeSet::UTopdownAttributeSet()
 {
-	
+	/*const FTopdownGameplayTags& GameplayTags = FTopdownGameplayTags::Get();
+
+	TagsToAttributes.Add()*/
 }
 
 void UTopdownAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
@@ -54,6 +57,8 @@ void UTopdownAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
+		UE_LOG(LogTemp, Warning, TEXT("Changed Health on %s, Health: %f"), *Props.TargetAvatarActor->GetName(), GetHealth());
+		
 	}
 	if (Data.EvaluatedData.Attribute == GetManaAttribute())
 	{
