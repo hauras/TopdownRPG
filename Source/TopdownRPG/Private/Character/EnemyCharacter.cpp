@@ -1,6 +1,7 @@
 
 #include "Character/EnemyCharacter.h"
 
+#include "AbilitySystem/TopdownAbilityFunctionLibrary.h"
 #include "AbilitySystem/TopdownAbilitySystemComponent.h"
 #include "AbilitySystem/TopdownAttributeSet.h"
 #include "Components/WidgetComponent.h"
@@ -77,4 +78,9 @@ void AEnemyCharacter::InitAbilityActorInfo()
 	Cast<UTopdownAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
 
 	InitializeDefaultAttributes();
+}
+
+void AEnemyCharacter::InitializeDefaultAttributes() const
+{
+	UTopdownAbilityFunctionLibrary::InitializeDefaultAttributes(this, MonsterClass, Level, AbilitySystemComponent);
 }
