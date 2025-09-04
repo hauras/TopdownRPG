@@ -5,7 +5,11 @@
 #include "GameFramework/Character.h"
 #include "GameplayEffectExtension.h"
 #include "TopdownGameplayTags.h"
+#include "AbilitySystem/TopdownAbilityFunctionLibrary.h"
+#include "Interface/CombatInterface.h"
+#include "Interface/PlayerInterface.h"
 #include "Net/UnrealNetwork.h"
+#include "TopdownRPG/TopdownLogChannels.h"
 
 UTopdownAttributeSet::UTopdownAttributeSet()
 {
@@ -64,6 +68,81 @@ void UTopdownAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 	{
 		SetMana(FMath::Clamp(GetMana(), 0.f, GetMaxMana()));
 	}
+
+	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
+	{
+		const float LocalIncomingDamage = GetIncomingDamage();
+		SetIncomingDamage(0.f);
+		if (LocalIncomingDamage > 0.f)
+		{
+			const float NewHealth = GetHealth() - LocalIncomingDamage;
+			SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
+
+			const bool bFatal = NewHealth <= 0.f;
+			if (bFatal)
+			{
+				// 1. 타겟이 죽었을 때의 처리
+				ICombatInterface* CombatInterface = Cast<ICombatInterface>(Props.TargetAvatarActor);
+				if (CombatInterface)
+				{
+					CombatInterface->Die();
+				}
+				// 2. [중요!] 타겟이 죽었으므로, 공격자(Source)에게 경험치를 주는 이벤트를 보냄
+				SendXPEvent(Props);
+			}
+			else
+			{
+				// 3. 타겟이 죽지 않았다면, 피격 반응 어빌리티를 활성화 시도
+				FGameplayTagContainer TagContainer;
+				TagContainer.AddTag(FTopdownGameplayTags::Get().Effects_HitReact);
+				Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+			}
+		}
+	}
+
+	// IncomingXP 처리 로직 (수정됨)
+	if (Data.EvaluatedData.Attribute == GetIncomingXPAttribute())
+	{
+		const float LocalIncomingXP = GetIncomingXP();
+		SetIncomingXP(0.f);
+		
+		// [중요!] 경험치를 '받는' 대상(Target)이 플레이어 인터페이스를 가지고 있는지 확인
+	if (Props.SourceCharacter->Implements<UPlayerInterface>() && Props.SourceCharacter->Implements<UCombatInterface>())
+	{
+			const int32 CurrentLevel = ICombatInterface::Execute_GetPlayerLevel(Props.SourceCharacter);
+			const int32 CurrentXP = IPlayerInterface::Execute_GetXP(Props.SourceCharacter);
+
+			const int32 NewLevel = IPlayerInterface::Execute_FindLevelForXP(Props.SourceCharacter,CurrentXP + LocalIncomingXP);
+			const int32 NumLevelUps = NewLevel - CurrentLevel;
+		if (NumLevelUps > 0)
+		{
+			IPlayerInterface::Execute_AddToPlayerLevel(Props.SourceCharacter, NumLevelUps);
+			
+			IPlayerInterface::Execute_LevelUp(Props.SourceCharacter);
+
+			// 레벨업 후 체력 최대로 설정
+			SetHealth(GetMaxHealth());
+		}
+		// 플레이어에게 실제 경험치를 더해줌
+			IPlayerInterface::Execute_AddToEXP(Props.TargetCharacter, LocalIncomingXP);
+		}
+	}
+}
+
+void UTopdownAttributeSet::SendXPEvent(const FEffectProperties& Props)
+{
+	if (Props.TargetCharacter->Implements<UCombatInterface>())
+	{
+		const int32 TargetLevel = ICombatInterface::Execute_GetPlayerLevel(Props.TargetCharacter);
+		const EMonsterType TargetClass = ICombatInterface::Execute_GetMonsterType(Props.TargetCharacter);
+		const int32 XPReward = UTopdownAbilityFunctionLibrary::GetXPRewardForClassAndLevel(Props.TargetCharacter, TargetClass, TargetLevel);
+
+		const FTopdownGameplayTags& GameplayTags = FTopdownGameplayTags::Get();
+		FGameplayEventData Payload;
+		Payload.EventTag = GameplayTags.Attributes_Meta_IncomingXP;
+		Payload.EventMagnitude = XPReward;
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Props.SourceCharacter, GameplayTags.Attributes_Meta_IncomingXP, Payload);
+	}
 }
 
 void UTopdownAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& Data,
@@ -86,7 +165,7 @@ void UTopdownAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackD
 		}
 		if (Props.SourceController)
 		{
-			ACharacter* SourceCharacter = Cast<ACharacter>(Props.SourceController->GetPawn());
+			Props.SourceCharacter = Cast<ACharacter>(Props.SourceController->GetPawn());
 		}
 	}
 

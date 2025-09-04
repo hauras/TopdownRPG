@@ -13,6 +13,8 @@
 ATopdownPlayerController::ATopdownPlayerController()
 {
 	bReplicates = true;
+
+	PlayerTeamID = FGenericTeamId(0);
 }
 
 void ATopdownPlayerController::PlayerTick(float DeltaTime)
@@ -20,6 +22,11 @@ void ATopdownPlayerController::PlayerTick(float DeltaTime)
 	Super::PlayerTick(DeltaTime);
 
 	CursorTrace();
+}
+
+FGenericTeamId ATopdownPlayerController::GetGenericTeamId() const
+{
+	return PlayerTeamID;
 }
 
 void ATopdownPlayerController::BeginPlay()

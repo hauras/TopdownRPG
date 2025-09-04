@@ -2,10 +2,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ScalableFloat.h"
 #include "Engine/DataAsset.h"
 #include "MonsterClassInfo.generated.h"
 
 class UGameplayEffect;
+class UGameplayAbility;
 
 UENUM(BlueprintType)
 enum class EMonsterType : uint8
@@ -26,6 +28,9 @@ struct FMonsterClassDefaultInfo
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Class Defaults")
 	TSubclassOf<UGameplayEffect> PrimaryMonsterAttributes;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Class Defaults")
+	FScalableFloat XPReward = FScalableFloat();
 };
 
 
@@ -46,4 +51,7 @@ public:
 	TSubclassOf<UGameplayEffect> VitalAttributes;
 
 	FMonsterClassDefaultInfo GetClassDefaultInfo(EMonsterType MonsterClass);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Common Class Defaults")
+	TArray<TSubclassOf<UGameplayAbility>> Abilities;
 };

@@ -4,6 +4,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "GameplayTagContainer.h"
+#include "GenericTeamAgentInterface.h"
 #include "TopdownPlayerController.generated.h"
 
 class UTopdownAbilitySystemComponent;
@@ -17,7 +18,7 @@ class UInputAction;
  * 
  */
 UCLASS()
-class TOPDOWNRPG_API ATopdownPlayerController : public APlayerController
+class TOPDOWNRPG_API ATopdownPlayerController : public APlayerController, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
@@ -25,7 +26,7 @@ public:
 	ATopdownPlayerController();
 	virtual void PlayerTick(float DeltaTime) override;
 
-	
+	virtual FGenericTeamId GetGenericTeamId() const override;
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
@@ -55,4 +56,6 @@ private:
 	TObjectPtr<UTopdownAbilitySystemComponent> TopdownAbilitySystemComponent;
 
 	UTopdownAbilitySystemComponent* GetASC();
+
+	FGenericTeamId PlayerTeamID;
 };

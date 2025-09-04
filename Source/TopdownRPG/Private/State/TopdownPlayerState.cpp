@@ -20,6 +20,8 @@ void ATopdownPlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimePrope
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ATopdownPlayerState, Level);
+	DOREPLIFETIME(ATopdownPlayerState, XP);
+
 }
 
 UAbilitySystemComponent* ATopdownPlayerState::GetAbilitySystemComponent() const
@@ -27,7 +29,36 @@ UAbilitySystemComponent* ATopdownPlayerState::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
+void ATopdownPlayerState::AddToXP(int32 InXP)
+{
+	XP += InXP;
+	OnXPChangedDelegate.Broadcast(XP);
+}
+
+void ATopdownPlayerState::AddToLevel(int32 InLevel)
+{
+	Level += InLevel;
+	OnLevelChangedDelegate.Broadcast(Level);
+}
+
+void ATopdownPlayerState::SetXP(int32 InXP)
+{
+	XP = InXP;
+	OnXPChangedDelegate.Broadcast(XP);
+}
+
+void ATopdownPlayerState::SetLevel(int32 InLevel)
+{
+	Level = InLevel;
+	OnLevelChangedDelegate.Broadcast(Level);
+}
+
 void ATopdownPlayerState::OnRep_Level(int32 OldLevel)
 {
-	
+	OnLevelChangedDelegate.Broadcast(Level);
+}
+
+void ATopdownPlayerState::OnRep_XP(int32 OldXP)
+{
+	OnXPChangedDelegate.Broadcast(XP);
 }

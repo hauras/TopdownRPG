@@ -19,6 +19,8 @@ public:
 	FGameplayTag Attributes_Secondary_Armor;
 	FGameplayTag Attributes_Secondary_CriticalHitChance;
 
+	FGameplayTag Attributes_Meta_IncomingXP;
+	
 	FGameplayTag InputTag_LMB;
 	FGameplayTag InputTag_RMB;
 	FGameplayTag InputTag_1;
@@ -26,6 +28,15 @@ public:
 	FGameplayTag InputTag_3;
 	FGameplayTag InputTag_4;
 
+	FGameplayTag Damage;
+
+	FGameplayTag Effects_HitReact;
+
+	FGameplayTag Abilities_Fire_FireBolt;
+	FGameplayTag Cooldown_Fire_FireBolt;
+
+	FGameplayTag Abilities_Fire_FireStorm;
+	FGameplayTag Cooldown_Fire_FireStorm;
 protected:
 
 private:

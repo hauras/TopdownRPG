@@ -4,6 +4,7 @@
 
 #include "TopdownGameplayTags.h"
 #include "AbilitySystem/Abilities/TopdownGameplayAbility.h"
+#include "TopdownRPG/TopdownLogChannels.h"
 
 void UTopdownAbilitySystemComponent::AbilityActorInfoSet()
 {
@@ -24,6 +25,18 @@ void UTopdownAbilitySystemComponent::AddCharacterAbilities(
 			GiveAbility(AbilitySpec);
 
 		}
+	}
+	// UI에 표시
+	bStartupAbilitiesGiven = true;
+	AbilitiesGiven.Broadcast(this);
+}
+
+void UTopdownAbilitySystemComponent::AddCharacterPassiveAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupPassiveAbilities)
+{
+	for (const TSubclassOf<UGameplayAbility> AbilityClass : StartupPassiveAbilities)
+	{
+		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass,1); // 어떤 어빌리티인지, 레벨은 몇으로 할지?
+		GiveAbilityAndActivateOnce(AbilitySpec);
 	}
 }
 
@@ -57,8 +70,61 @@ void UTopdownAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag&
 	}
 }
 
+void UTopdownAbilitySystemComponent::ForEachAbility(const FForEachAbility& Delegate)
+{
+	FScopedAbilityListLock ActiveScopeLock(*this);
+	for (const FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		if (!Delegate.ExecuteIfBound(AbilitySpec))
+		{
+			UE_LOG(LogTopdown, Error, TEXT("델리게이트 연동 실패 %hs"), __FUNCTION__);
+		}
+	}
+}
+
+// 어빌리티 스펙에서 Abilities 태그 가져옴 
+FGameplayTag UTopdownAbilitySystemComponent::GetAbilityTagFromSpec(const FGameplayAbilitySpec& AbilitySpec)
+{
+	if (AbilitySpec.Ability)
+	{
+		for (FGameplayTag Tag : AbilitySpec.Ability.Get()->AbilityTags)
+		{
+			if (Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Abilities"))))
+			{
+				return Tag;
+			}
+		}
+	}
+	return FGameplayTag();
+}
+
+// 어빌리티 스펙에서 InputTag를 가져옴
+FGameplayTag UTopdownAbilitySystemComponent::GetInputTagFromSpec(const FGameplayAbilitySpec& AbilitySpec)
+{
+	for (FGameplayTag Tag : AbilitySpec.DynamicAbilityTags)
+	{
+		if(Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("InputTag"))))
+		{
+			return Tag;
+		}
+	}
+	return FGameplayTag();
+}
+
+void UTopdownAbilitySystemComponent::OnRep_ActivateAbilities()
+{
+	Super::OnRep_ActivateAbilities();
+
+	if (!bStartupAbilitiesGiven)
+	{
+		bStartupAbilitiesGiven = true;
+		AbilitiesGiven.Broadcast(this);
+
+	}
+}
+
 void UTopdownAbilitySystemComponent::ClientEffectApply_Implementation(UAbilitySystemComponent* AbilitySystemComponent,
-                                                 const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle)
+                                                                      const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle)
 {
 	// 빈 태그 컨테이너 생성
 	FGameplayTagContainer TagContainer;

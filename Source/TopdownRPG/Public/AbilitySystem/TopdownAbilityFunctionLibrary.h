@@ -15,7 +15,17 @@ class TOPDOWNRPG_API UTopdownAbilityFunctionLibrary : public UBlueprintFunctionL
 {
 	GENERATED_BODY()
 public:
-	
-	UFUNCTION(BlueprintCallable, Category="AuraAbilitySystemLibrary|CharacterClassDefaults")
+
+	// 몬스터의 기본 속성 초기화
+	UFUNCTION(BlueprintCallable, Category="AbilitySystemLibrary|CharacterClassDefaults")
 	static void InitializeDefaultAttributes(const UObject* WorldContextObject, EMonsterType MonsterType, float Level, UAbilitySystemComponent* ASC);
+
+	// 몬스터에 시작 어빌리티 부여
+	UFUNCTION(BlueprintCallable, Category="AbilitySystemLibrary|CharacterClassDefaults" )
+	static void GiveStartupAbilities(const UObject* WorldContextObject, UAbilitySystemComponent* ASC);
+
+	UFUNCTION(BlueprintCallable, Category = "AbilitySystemLibrary|CharacterClassDefaults")
+	static UMonsterClassInfo* GetMonsterClassInfo(const UObject* WorldContextObject);
+
+	static int32 GetXPRewardForClassAndLevel(const UObject* WorldContextObject, EMonsterType MonsterType, int32 MonsterLevel);
 };
