@@ -35,5 +35,7 @@ void FTopdownGameplayTags::InitializeNativeGameplayTags()
 
 	GameplayTags.Abilities_Ice_FrostAttack = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Ice.FrostAttack"), FString("IceAttack Ability Tag"));
 	GameplayTags.Cooldown_Ice_FrostAttack = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Cooldown.Ice.FrostAttack"), FString("IceAttack Ability Tag"));
+
+	GameplayTags.State = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State"), FString("Parent Tag for Character States"));
 	GameplayTags.State_Frozen = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Frozen"), FString("State Ability Tag"));
 }

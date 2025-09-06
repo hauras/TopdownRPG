@@ -1,10 +1,13 @@
 
 #include "Character/CharacterBase.h"
 #include "AbilitySystemComponent.h"
+#include "TopdownGameplayTags.h"
 #include "AbilitySystem/TopdownAbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "TopdownRPG/TopdownRPG.h"
-
+#include "GameplayTagsManager.h"
+#include "Net/UnrealNetwork.h"
+#include "GameFramework/CharacterMovementComponent.h" 
 ACharacterBase::ACharacterBase()
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -67,14 +70,44 @@ FVector ACharacterBase::GetCombatSocketLocation()
 	return Weapon->GetSocketLocation(WeaponSocketName);
 }
 
+void ACharacterBase::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ACharacterBase, bIsFrozen);
+
+}
+
 void ACharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+}
+
+void ACharacterBase::DebuffTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	const FTopdownGameplayTags& GameplayTags = FTopdownGameplayTags::Get();
+	const bool bIsDebuffed = NewCount > 0;
+
+	if (CallbackTag.MatchesTag(GameplayTags.State_Frozen))
+	{
+		bIsFrozen = bIsDebuffed; 
+
+		// 멤버 변수 bIsFrozen의 상태에 따라 움직임을 제어
+		GetCharacterMovement()->SetMovementMode(bIsFrozen ? MOVE_None : MOVE_Walking);
+	}
 }
 
 void ACharacterBase::InitAbilityActorInfo()
 {
+	if (AbilitySystemComponent)
+	{
+		const FTopdownGameplayTags& GameplayTags = FTopdownGameplayTags::Get();
+
+		AbilitySystemComponent->RegisterGameplayTagEvent(
+			GameplayTags.State_Frozen,
+            EGameplayTagEventType::NewOrRemoved // 이벤트 타입도 NewOrRemoved로 변경
+			).AddUObject(this, &ACharacterBase::DebuffTagChanged);
+		
+	}
 }
 
 void ACharacterBase::ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, float Level) const
@@ -106,6 +139,10 @@ void ACharacterBase::AddCharacterAbilities()
 
 	TopdownASC->AddCharacterAbilities(StartupAbilities);
 	TopdownASC->AddCharacterPassiveAbilities(StartupPassiveAbilities);
+}
+
+void ACharacterBase::OnRep_Frozen()
+{
 }
 
 

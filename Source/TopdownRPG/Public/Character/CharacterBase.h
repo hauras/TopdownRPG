@@ -6,6 +6,7 @@
 #include "AbilitySystemInterface.h"
 #include "Interface/CombatInterface.h"
 #include "AbilitySystem/Data/MonsterClassInfo.h"
+#include "GameplayTagContainer.h"
 #include "CharacterBase.generated.h"
 
 class UGameplayAbility;
@@ -37,10 +38,12 @@ public:
 	// 죽음을 모든 클라에 복제하는 함수
 	UFUNCTION(NetMulticast, Reliable)
 	virtual void MulticastHandleDeath();
-	
+
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+
 protected:
 	virtual void BeginPlay() override;
-
+	virtual void DebuffTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
 	// 무기 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	TObjectPtr<USkeletalMeshComponent> Weapon;
@@ -91,6 +94,12 @@ protected:
 	//몬스터 타입
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Monster Class Defaults")
 	EMonsterType MonsterClass = EMonsterType::Melee;
+
+	UPROPERTY(ReplicatedUsing = OnRep_Frozen, BlueprintReadOnly)
+	bool bIsFrozen = false;
+
+	UFUNCTION()
+	virtual void OnRep_Frozen();
 private:
 
 	UPROPERTY(EditAnywhere, Category = "Combat")

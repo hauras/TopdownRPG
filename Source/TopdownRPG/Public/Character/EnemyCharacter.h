@@ -29,6 +29,8 @@ public:
 
 	virtual int32 GetPlayerLevel_Implementation() override;
 	virtual void Die() override;
+
+	virtual void DebuffTagChanged(const FGameplayTag CallbackTag, int32 NewCount) override;
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnAttributeChangedSignature OnHealthChanged;
@@ -53,12 +55,12 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 	float LifeSpan = 5.f;
 	
-	
-	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UWidgetComponent> HealthBar;
 
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UWidgetComponent> StatusImage;
+	
 	UPROPERTY()
 	TObjectPtr<ATopdownAIController> TopdownAIController;
 };

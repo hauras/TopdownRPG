@@ -40,6 +40,8 @@ public:
 
 	FGameplayTag Abilities_Ice_FrostAttack;
 	FGameplayTag Cooldown_Ice_FrostAttack;
+
+	FGameplayTag State; // 
 	FGameplayTag State_Frozen; // 빙결 상태
 protected:
 

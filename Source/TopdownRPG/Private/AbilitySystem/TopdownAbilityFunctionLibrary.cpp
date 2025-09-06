@@ -6,8 +6,7 @@
 #include "GameMode/TopdownGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 
-// 추후 수정 필요
-
+// 몬스터 초기 스탯 초기화
 void UTopdownAbilityFunctionLibrary::InitializeDefaultAttributes(const UObject* WorldContextObject,
                                                                  EMonsterType MonsterType, float Level, UAbilitySystemComponent* ASC)
 {
@@ -37,6 +36,7 @@ void UTopdownAbilityFunctionLibrary::InitializeDefaultAttributes(const UObject* 
 
 }
 
+// 게임 시작시 기본 어빌리티 부여
 void UTopdownAbilityFunctionLibrary::GiveStartupAbilities(const UObject* WorldContextObject,
 	UAbilitySystemComponent* ASC)
 {
@@ -50,6 +50,7 @@ void UTopdownAbilityFunctionLibrary::GiveStartupAbilities(const UObject* WorldCo
 	
 }
 
+// 몬스터 데이터 에셋 정보 가져오기 
 UMonsterClassInfo* UTopdownAbilityFunctionLibrary::GetMonsterClassInfo(const UObject* WorldContextObject)
 {
 	ATopdownGameModeBase* TopdownGameMode = Cast<ATopdownGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
@@ -57,6 +58,7 @@ UMonsterClassInfo* UTopdownAbilityFunctionLibrary::GetMonsterClassInfo(const UOb
 	return TopdownGameMode->MonsterClassInfo;
 }
 
+// 경혐치 반환 
 int32 UTopdownAbilityFunctionLibrary::GetXPRewardForClassAndLevel(const UObject* WorldContextObject,
                                                                   EMonsterType MonsterType, int32 MonsterLevel)
 {

@@ -8,6 +8,7 @@
 #include "AI/TopdownAIController.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "AI/TopdownAIController.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "TopdownRPG/TopdownRPG.h"
@@ -30,6 +31,9 @@ AEnemyCharacter::AEnemyCharacter()
 	
 	HealthBar = CreateDefaultSubobject<UWidgetComponent>("HealthBar");
 	HealthBar->SetupAttachment(GetRootComponent());
+
+	StatusImage = CreateDefaultSubobject<UWidgetComponent>("StatusImage");
+	StatusImage->SetupAttachment(GetRootComponent());
 }
 
 void AEnemyCharacter::PossessedBy(AController* NewController)
@@ -65,6 +69,21 @@ void AEnemyCharacter::Die()
 {
 	SetLifeSpan(LifeSpan);
 	Super::Die();
+}
+
+void AEnemyCharacter::DebuffTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	Super::DebuffTagChanged(CallbackTag, NewCount);
+	if (TopdownAIController && TopdownAIController->GetBlackboardComponent())
+	{
+		// 블랙보드에 "IsFrozen" 키가 있어야 합니다!
+		TopdownAIController->GetBlackboardComponent()->SetValueAsBool(FName("IsFrozen"), bIsFrozen);
+	}
+
+	if (StatusImage)
+	{
+		StatusImage->SetVisibility(bIsFrozen);
+	}
 }
 
 void AEnemyCharacter::BeginPlay()
@@ -103,6 +122,7 @@ void AEnemyCharacter::InitAbilityActorInfo()
 {
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 	Cast<UTopdownAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
+	Super::InitAbilityActorInfo(); // << 이 줄이 없으면 절대 작동하지 않습니다!
 
 	InitializeDefaultAttributes();
 }
