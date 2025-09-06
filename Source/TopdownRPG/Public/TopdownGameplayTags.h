@@ -37,6 +37,10 @@ public:
 
 	FGameplayTag Abilities_Fire_FireStorm;
 	FGameplayTag Cooldown_Fire_FireStorm;
+
+	FGameplayTag Abilities_Ice_FrostAttack;
+	FGameplayTag Cooldown_Ice_FrostAttack;
+	FGameplayTag State_Frozen; // 빙결 상태
 protected:
 
 private:

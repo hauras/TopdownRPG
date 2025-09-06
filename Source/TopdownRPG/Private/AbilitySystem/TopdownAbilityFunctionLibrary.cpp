@@ -47,6 +47,7 @@ void UTopdownAbilityFunctionLibrary::GiveStartupAbilities(const UObject* WorldCo
 		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1);
 		ASC->GiveAbility(AbilitySpec);
 	}
+	
 }
 
 UMonsterClassInfo* UTopdownAbilityFunctionLibrary::GetMonsterClassInfo(const UObject* WorldContextObject)

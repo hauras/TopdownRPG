@@ -19,35 +19,62 @@ void ATopdownEffectActor::BeginPlay()
 
 }
 
-// 이 함수는 이제 Instant와 Duration 효과를 적용하는 '헬퍼 함수'가 됩니다.
 void ATopdownEffectActor::ApplyEffectToTarget(AActor* Target, TSubclassOf<UGameplayEffect> GameplayEffectClass)
 {
-	if (Target->ActorHasTag(FName("Enemy")) && !bApplyEffectsToEnemies) return;
-	
-	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Target);
+	// 1. 안전장치: 타겟이 유효하지 않으면 아무것도 하지 않고 즉시 함수를 종료합니다.
+	if (!IsValid(Target))
+	{
+		return;
+	}
 
+	// 2. 자기 자신 예외 처리: 이 장판을 소환한 액터(Instigator)와 장판에 닿은 액터(Target)가 동일 인물이라면,
+	//    아무것도 하지 않고 즉시 함수를 종료합니다. 이것이 '나에게 데미지가 들어오는 것'을 막는 핵심 코드입니다.
+	if (Target == GetInstigator())
+	{
+		return;
+	}
+
+	// 기존의 적 태그 체크 로직은 그대로 유지합니다.
+	// (예: 아군에게는 적용 안 함 등의 로직이 있다면 여기에 위치)
+	// if (Target->ActorHasTag(FName("Enemy")) && !bApplyEffectsToEnemies) return;
+	
+	// 타겟의 어빌리티 시스템 컴포넌트(ASC)를 가져옵니다.
+	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Target);
 	if (TargetASC == nullptr) return;
 
+	// GameplayEffectClass가 유효하지 않은 경우를 대비한 check 추가
 	check(GameplayEffectClass);
+
+	// 이펙트의 상세 정보를 담을 컨텍스트 핸들을 생성합니다.
 	FGameplayEffectContextHandle EffectContextHandle = TargetASC->MakeEffectContext();
+
+	// [핵심 수정] 이펙트의 최종 책임자(Instigator)와 물리적 원인 제공자(EffectCauser)를 설정합니다.
+	// GetInstigator()는 이 장판을 소환한 플레이어를 반환합니다.
+	// "이 데미지는 장판(this)이 가했지만, 시킨 건 플레이어(GetInstigator())다" 라고 명시하여
+	// 경험치와 같은 공로가 올바르게 플레이어에게 돌아가도록 합니다.
+	EffectContextHandle.AddInstigator(GetInstigator(), this);
+
+	// 이 효과를 발생시킨 소스 오브젝트는 이 액터(ATopdownEffectActor) 자신임을 명시합니다.
 	EffectContextHandle.AddSourceObject(this);
 
-	// 스펙 핸들 생성 (레벨 1, 위 컨텍스트 포함)
+	// 위에서 설정한 정보(컨텍스트)를 포함하여 이펙트 스펙 핸들을 생성합니다.
 	const FGameplayEffectSpecHandle EffectSpecHandle = TargetASC->MakeOutgoingSpec(GameplayEffectClass, ActorLevel, EffectContextHandle);
 
-	// 스펙을 자기 자신에게 적용
-	const FActiveGameplayEffectHandle ActiveEffectHandle = TargetASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
-
-	// 이 이펙트가 무한 지속시간인지 체크
-	const bool bIsInfinite = EffectSpecHandle.Data.Get()->Def.Get()->DurationPolicy == EGameplayEffectDurationType::Infinite;
-
-	// 무한 효과이며, EndOverlap 시 제거하는 설정이라면 → 맵에 저장
-	if (bIsInfinite && InfiniteEffectRemovePolicy == EEffectRemovePolicy::RemoveOnEndOverlap)
+	// 유효한 스펙 핸들이 만들어졌는지 확인하고, 타겟에게 이펙트를 적용합니다.
+	if (EffectSpecHandle.IsValid())
 	{
-		ActiveEffectHandles.Add(ActiveEffectHandle, TargetASC);
+		const FActiveGameplayEffectHandle ActiveEffectHandle = TargetASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
+
+		// 이 이펙트가 무한 지속시간을 가지는지 확인합니다.
+		const bool bIsInfinite = EffectSpecHandle.Data.Get()->Def.Get()->DurationPolicy == EGameplayEffectDurationType::Infinite;
+
+		// 무한 지속 효과이며, Overlap이 끝났을 때 제거하는 정책이라면 맵에 저장해둡니다.
+		if (bIsInfinite && InfiniteEffectRemovePolicy == EEffectRemovePolicy::RemoveOnEndOverlap)
+		{
+			ActiveEffectHandles.Add(ActiveEffectHandle, TargetASC);
+		}
 	}
 }
-
 void ATopdownEffectActor::OnOverlap(AActor* TargetActor)
 {
 	if (InstantEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnOverlap)

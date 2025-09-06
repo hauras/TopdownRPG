@@ -61,7 +61,6 @@ void UTopdownAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
-		UE_LOG(LogTemp, Warning, TEXT("Changed Health on %s, Health: %f"), *Props.TargetAvatarActor->GetName(), GetHealth());
 		
 	}
 	if (Data.EvaluatedData.Attribute == GetManaAttribute())
@@ -107,25 +106,26 @@ void UTopdownAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 		SetIncomingXP(0.f);
 		
 		// [중요!] 경험치를 '받는' 대상(Target)이 플레이어 인터페이스를 가지고 있는지 확인
-	if (Props.SourceCharacter->Implements<UPlayerInterface>() && Props.SourceCharacter->Implements<UCombatInterface>())
-	{
+		if (Props.SourceCharacter->Implements<UPlayerInterface>() && Props.SourceCharacter->Implements<UCombatInterface>())
+		{
 			const int32 CurrentLevel = ICombatInterface::Execute_GetPlayerLevel(Props.SourceCharacter);
 			const int32 CurrentXP = IPlayerInterface::Execute_GetXP(Props.SourceCharacter);
 
-			const int32 NewLevel = IPlayerInterface::Execute_FindLevelForXP(Props.SourceCharacter,CurrentXP + LocalIncomingXP);
+			const int32 NewLevel = IPlayerInterface::Execute_FindLevelForXP(Props.SourceCharacter, CurrentXP + LocalIncomingXP);
 			const int32 NumLevelUps = NewLevel - CurrentLevel;
-		if (NumLevelUps > 0)
-		{
-			IPlayerInterface::Execute_AddToPlayerLevel(Props.SourceCharacter, NumLevelUps);
-			
-			IPlayerInterface::Execute_LevelUp(Props.SourceCharacter);
-
-			// 레벨업 후 체력 최대로 설정
-			SetHealth(GetMaxHealth());
+			if (NumLevelUps > 0)
+			{
+				IPlayerInterface::Execute_AddToPlayerLevel(Props.SourceCharacter, NumLevelUps);
+	
+				SetHealth(GetMaxHealth());
+				SetMana(GetMaxMana());
+				
+				IPlayerInterface::Execute_LevelUp(Props.SourceCharacter);
+			}
 		}
 		// 플레이어에게 실제 경험치를 더해줌
 			IPlayerInterface::Execute_AddToEXP(Props.TargetCharacter, LocalIncomingXP);
-		}
+		
 	}
 }
 

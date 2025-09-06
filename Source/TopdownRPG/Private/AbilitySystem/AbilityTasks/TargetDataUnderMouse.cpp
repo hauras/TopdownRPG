@@ -17,7 +17,7 @@ void UTargetDataUnderMouse::Activate()
 	const bool bIsLocallyControlled = Ability->GetCurrentActorInfo()->IsLocallyControlled();
 	if (bIsLocallyControlled)
 	{
-		SendMoustCursorData();
+		SendMouseCursorData();
 	}
 	else
 	{
@@ -26,7 +26,7 @@ void UTargetDataUnderMouse::Activate()
 	
 }
 
-void UTargetDataUnderMouse::SendMoustCursorData()
+void UTargetDataUnderMouse::SendMouseCursorData()
 {
 	FScopedPredictionWindow ScopedPrediction(AbilitySystemComponent.Get());
 
