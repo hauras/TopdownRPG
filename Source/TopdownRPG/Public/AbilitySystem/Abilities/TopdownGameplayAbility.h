@@ -22,4 +22,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
+
+protected:
+
+	UFUNCTION(BlueprintCallable, Category = "Damage")
+	void ApplyDamage(AActor* TargetActor);
 };

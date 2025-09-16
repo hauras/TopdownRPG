@@ -28,4 +28,8 @@ public:
 	static UMonsterClassInfo* GetMonsterClassInfo(const UObject* WorldContextObject);
 
 	static int32 GetXPRewardForClassAndLevel(const UObject* WorldContextObject, EMonsterType MonsterType, int32 MonsterLevel);
+
+	UFUNCTION(BlueprintCallable, Category = "AuraAbilitySystemLibrary|Targeting")
+	static void GetClosestTargets(int32 MaxTargets, const TArray<AActor*>& Actors, TArray<AActor*>& OutClosestTargets, const FVector& Origin);
+	
 };

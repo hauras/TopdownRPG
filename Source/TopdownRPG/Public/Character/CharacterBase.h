@@ -33,11 +33,15 @@ public:
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
 	virtual void Die() override;
 	virtual EMonsterType GetMonsterType_Implementation() override;
+	virtual USkeletalMeshComponent* GetWeapon_Implementation() override;
+
 	/* CombatInterface*/
 
 	// 죽음을 모든 클라에 복제하는 함수
 	UFUNCTION(NetMulticast, Reliable)
 	virtual void MulticastHandleDeath();
+
+    virtual FOnDeathSignature& GetOnDeathDelegate() override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
@@ -63,6 +67,9 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UAttributeSet> AttributeSet;
 
+	UPROPERTY(BlueprintAssignable)
+	FOnDeathSignature OnDeathDelegate;
+	
 	// 어빌리티 시스템에 소유자(Owner)와 아바타액터 설정
 	// 플레이어와 적을 다르게 구현하므로 자식 클래스에서 사용
 	virtual void InitAbilityActorInfo();

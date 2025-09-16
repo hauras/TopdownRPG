@@ -48,6 +48,11 @@ EMonsterType ACharacterBase::GetMonsterType_Implementation()
 	return MonsterClass;
 }
 
+USkeletalMeshComponent* ACharacterBase::GetWeapon_Implementation()
+{
+	return Weapon;
+}
+
 // 래그돌 방식 구현 (죽음)
 void ACharacterBase::MulticastHandleDeath_Implementation()
 {
@@ -61,6 +66,10 @@ void ACharacterBase::MulticastHandleDeath_Implementation()
 	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 	
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	OnDeathDelegate.Broadcast(this);
+
+
 }
 
 // 무기 소켓의 위치 반환
@@ -68,6 +77,11 @@ FVector ACharacterBase::GetCombatSocketLocation()
 {
 	check(Weapon);
 	return Weapon->GetSocketLocation(WeaponSocketName);
+}
+
+FOnDeathSignature& ACharacterBase::GetOnDeathDelegate()
+{
+	return OnDeathDelegate;
 }
 
 void ACharacterBase::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const

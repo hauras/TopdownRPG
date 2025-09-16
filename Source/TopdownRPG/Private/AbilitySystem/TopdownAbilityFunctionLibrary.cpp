@@ -70,3 +70,42 @@ int32 UTopdownAbilityFunctionLibrary::GetXPRewardForClassAndLevel(const UObject*
 
 	return static_cast<int32>(XPReward);
 }
+
+void UTopdownAbilityFunctionLibrary::GetClosestTargets(int32 MaxTargets, const TArray<AActor*>& Actors,
+	TArray<AActor*>& OutClosestTargets, const FVector& Origin)
+{
+	if (Actors.Num() <= MaxTargets)
+	{
+		OutClosestTargets = Actors;
+		return;
+	}
+
+	TArray<AActor*> ActorsToCheck = Actors;
+	int32 NumTargetsFound = 0;
+
+	while (NumTargetsFound < MaxTargets)
+	{
+		if (ActorsToCheck.Num() == 0) break;
+
+		double ClosestDistance = DBL_MAX;
+		AActor* ClosestActor = nullptr;
+
+		for (AActor* PotentialTarget : ActorsToCheck)
+		{
+			const double Distance = (PotentialTarget->GetActorLocation() - Origin).Size();
+			if (Distance < ClosestDistance)
+			{
+				ClosestDistance = Distance;
+				ClosestActor = PotentialTarget;
+			}
+		}
+
+		if (ClosestActor)
+		{
+			OutClosestTargets.AddUnique(ClosestActor);
+			ActorsToCheck.Remove(ClosestActor);
+			NumTargetsFound++;
+		}
+	}
+}
+

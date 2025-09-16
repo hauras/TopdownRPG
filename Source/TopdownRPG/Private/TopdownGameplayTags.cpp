@@ -36,6 +36,14 @@ void FTopdownGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Abilities_Ice_FrostAttack = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Ice.FrostAttack"), FString("IceAttack Ability Tag"));
 	GameplayTags.Cooldown_Ice_FrostAttack = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Cooldown.Ice.FrostAttack"), FString("IceAttack Ability Tag"));
 
+	GameplayTags.Abilities_Lightning_Beam = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Lightning.Beam"), FString("Lightning Ability Tag"));
+	GameplayTags.Cooldown_Lightning_Beam = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Cooldown.Lightning.Beam"), FString("Lightning Ability Tag"));
+
+	GameplayTags.Abilities_Teleport = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Teleport"));
+	GameplayTags.Cooldown_Teleport = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Cooldown.Teleport"));
+	
+	GameplayTags.GameplayCue_Teleport_Start = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("GameplayCue.Teleport.Start"),FString("Gameplay Cue for Teleport Start Effect"));
+	
 	GameplayTags.State = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State"), FString("Parent Tag for Character States"));
 	GameplayTags.State_Frozen = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Frozen"), FString("State Ability Tag"));
 }

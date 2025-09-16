@@ -32,6 +32,7 @@ public:
 
 	FGameplayTag Effects_HitReact;
 
+	// 스킬
 	FGameplayTag Abilities_Fire_FireBolt;
 	FGameplayTag Cooldown_Fire_FireBolt;
 
@@ -41,6 +42,15 @@ public:
 	FGameplayTag Abilities_Ice_FrostAttack;
 	FGameplayTag Cooldown_Ice_FrostAttack;
 
+	FGameplayTag Abilities_Lightning_Beam;
+	FGameplayTag Cooldown_Lightning_Beam;
+
+	FGameplayTag Abilities_Teleport;
+	FGameplayTag Cooldown_Teleport;
+
+	FGameplayTag GameplayCue_Teleport_Start;
+	
+	//상태이상
 	FGameplayTag State; // 
 	FGameplayTag State_Frozen; // 빙결 상태
 protected:

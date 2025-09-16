@@ -4,6 +4,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "TopdownGameplayTags.h"
 #include "AbilitySystem/TopdownAbilitySystemComponent.h"
 #include "Input/TopdownInputComponent.h"
 #include "Interface/EnemyInterface.h"
@@ -92,12 +93,13 @@ void ATopdownPlayerController::CursorTrace()
 
 void ATopdownPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 {
+	if (GetASC()) GetASC()->AbilityInputTagPressed(InputTag);
 }
 
 void ATopdownPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 {
 	if (GetASC() == nullptr) return;
-	GetASC()->AbilityInputTagHeld(InputTag);
+	GetASC()->AbilityInputTagReleased(InputTag);
 }
 
 void ATopdownPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)

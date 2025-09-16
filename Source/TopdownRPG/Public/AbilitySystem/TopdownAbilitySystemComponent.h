@@ -34,6 +34,7 @@ public:
 
 	// 특정 입력 태그에 연결된 어빌리티를 실행하거나 상태 업데이트
 	void AbilityInputTagHeld(const FGameplayTag& InputTag);
+	void AbilityInputTagPressed(const FGameplayTag& InputTag);
 	void AbilityInputTagReleased(const FGameplayTag& InputTag);
 	void ForEachAbility(const FForEachAbility& Delegate);
 
